@@ -12,7 +12,8 @@ export class TemplateFormComponent implements OnInit {
   usuario: any = {
     nome: null,
     email: null
-  }
+  };
+
   onSubmit(formulario) {
     console.log(formulario);
 
