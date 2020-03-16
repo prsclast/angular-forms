@@ -38,8 +38,7 @@ export class TemplateFormComponent implements OnInit {
     return {
       'has-error': this.verificaValidTouched(campo),
       'has-feedback': this.verificaValidTouched(campo)
-    }
-
+    };
   }
 
   consultaCEP(cep, form) {
