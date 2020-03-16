@@ -28,13 +28,16 @@ export class DataFormComponent implements OnInit {
     this.formulario = this.formBuilder.group({
       nome: [null, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
       email: [null, [Validators.required, Validators.email]],
-      cep: [null, Validators.required],
-      numero: [null, Validators.required],
-      complemento: [null],
-      rua: [null, Validators.required],
-      bairro: [null, Validators.required],
-      cidade: [null, Validators.required],
-      estado: [null, Validators.required]
+
+      endereco: this.formBuilder.group({
+        cep: [null, Validators.required],
+        numero: [null, Validators.required],
+        complemento: [null],
+        rua: [null, Validators.required],
+        bairro: [null, Validators.required],
+        cidade: [null, Validators.required],
+        estado: [null, Validators.required]
+      })
     });
   }
 
@@ -74,6 +77,70 @@ export class DataFormComponent implements OnInit {
       'has-error': this.verificaValidTouched(campo),
       'has-feedback': this.verificaValidTouched(campo)
     };
+  }
+
+  consultaCEP() {
+
+    let cep = this.formulario.get('endereco.cep').value;
+    // Nova variável "cep" somente com dígitos.
+    cep = cep.replace(/\D/g, '');
+
+    // Verifica se campo cep possui valor informado.
+    if (cep != "") {
+
+      // Expressão regular para validar o CEP.
+      var validacep = /^[0-9]{8}$/;
+
+      // Valida o formato do CEP.
+      if (validacep.test(cep)) {
+
+        this.resetaDadosForm();
+
+        this.http.get(`https://viacep.com.br/ws/${cep}/json`)
+          .pipe(map(dados => dados))
+          .subscribe(dados => this.populaDadosForm(dados));
+      }
+    }
+  }
+
+  resetaDadosForm() {
+    this.formulario.patchValue({
+      endereco: {
+        complemento: null,
+        rua: null,
+        bairro: null,
+        cidade: null,
+        estado: null
+      }
+    });
+  }
+
+  populaDadosForm(dados) {
+    /** formulario.setValue({
+     *  nome: formulario.value.nome,
+     *  email: formulario.value.email,
+     *  endereco: {
+     *    cep: dados.cep,
+     *    numero: '',
+     *    complemento: dados.complemento,
+     *    rua: dados.logradouro,
+     *    bairro: dados.bairro,
+     *    cidade: dados.localidade,
+     *    estado: dados.uf
+     *  }
+     * });
+     */
+
+    this.formulario.patchValue({
+      endereco: {
+        cep: dados.cep,
+        complemento: dados.complemento,
+        rua: dados.logradouro,
+        bairro: dados.bairro,
+        cidade: dados.localidade,
+        estado: dados.uf
+      }
+    });
   }
 
 }
